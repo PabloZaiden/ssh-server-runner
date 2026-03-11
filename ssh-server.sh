@@ -10,6 +10,8 @@ fi
 
 if [ -n "${SSH_AUTH_SOCK}" ]; then
   echo "export SSH_AUTH_SOCK=\"${SSH_AUTH_SOCK}\"" >> ~/.profile
+  echo "export SSH_AUTH_SOCK=\"${SSH_AUTH_SOCK}\"" >> ~/.bashrc
+  echo "export SSH_AUTH_SOCK=\"${SSH_AUTH_SOCK}\"" >> ~/.zshenv  
 fi
 
 CRED_FILE="${CRED_FILE:-.sshcred}"
