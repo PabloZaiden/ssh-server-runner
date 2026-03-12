@@ -2,13 +2,17 @@
 set -euo pipefail
 
 # get the latest vscode-generated auth sock, if available
-VSCODE_SSH_AUTH_SOCK=$(ls -1t /tmp/vscode-ssh*.sock 2>/dev/null | head -n 1)
+VSCODE_SSH_AUTH_SOCK=""
+mapfile -t vscode_ssh_socks < <(compgen -G "/tmp/vscode-ssh*.sock" || true)
+if [[ ${#vscode_ssh_socks[@]} -gt 0 ]]; then
+  VSCODE_SSH_AUTH_SOCK=$(ls -1t "${vscode_ssh_socks[@]}" | head -n 1)
+fi
 
 if [ -n "${VSCODE_SSH_AUTH_SOCK}" ]; then
   export SSH_AUTH_SOCK=${VSCODE_SSH_AUTH_SOCK}
 fi
 
-if [ -n "${SSH_AUTH_SOCK}" ]; then
+if [ -n "${SSH_AUTH_SOCK:-}" ]; then
   echo "export SSH_AUTH_SOCK=\"${SSH_AUTH_SOCK}\"" >> ~/.profile
   echo "export SSH_AUTH_SOCK=\"${SSH_AUTH_SOCK}\"" >> ~/.bashrc
   echo "export SSH_AUTH_SOCK=\"${SSH_AUTH_SOCK}\"" >> ~/.zshenv  
