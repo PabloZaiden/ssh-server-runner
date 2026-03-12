@@ -67,6 +67,9 @@ mkdir -p /var/run/sshd
 mkdir -p /etc/ssh/sshd_config.d
 '
 
+# install fresh editor
+curl https://raw.githubusercontent.com/sinelaw/fresh/refs/heads/master/scripts/install.sh | sh
+
 # Use existing password if present, otherwise create it once
 if [[ -f "$CRED_FILE" ]]; then
   PASS="$(cat "$CRED_FILE")"
