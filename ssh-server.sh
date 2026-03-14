@@ -61,7 +61,7 @@ as_root_bash '
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y --no-install-recommends openssh-server uuid-runtime tmux
+apt-get install -y --no-install-recommends openssh-server uuid-runtime dtach
 rm -rf /var/lib/apt/lists/*
 mkdir -p /var/run/sshd
 mkdir -p /etc/ssh/sshd_config.d
