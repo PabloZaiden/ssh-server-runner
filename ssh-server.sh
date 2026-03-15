@@ -53,6 +53,14 @@ as_root_bash() {
   exit 1
 }
 
+resolve_path() {
+  local path="$1"
+  local dir_path
+
+  dir_path="$(cd "$(dirname "$path")" && pwd -P)"
+  printf '%s/%s\n' "$dir_path" "$(basename "$path")"
+}
+
 # Prefer the non-root invoker when using sudo
 CURRENT_USER="${SUDO_USER:-$(id -un)}"
 
@@ -117,14 +125,19 @@ fi
 # If git exists and this is a repo, ignore locally without touching .gitignore
 if command -v git >/dev/null 2>&1; then
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    REPO_ROOT="$(git rev-parse --show-toplevel)"
-    EXCLUDE_FILE="${REPO_ROOT}/.git/info/exclude"
-    PATTERN="/$(basename "$CRED_FILE")"
+    REPO_ROOT="$(cd "$(git rev-parse --show-toplevel)" && pwd -P)"
+    CRED_FILE_ABS="$(resolve_path "$CRED_FILE")"
 
-    mkdir -p "${REPO_ROOT}/.git/info"
-    touch "$EXCLUDE_FILE"
-    if ! grep -qxF "$PATTERN" "$EXCLUDE_FILE"; then
-      printf '\n%s\n' "$PATTERN" >> "$EXCLUDE_FILE"
+    if [[ "$CRED_FILE_ABS" == "$REPO_ROOT"/* ]]; then
+      EXCLUDE_FILE="${REPO_ROOT}/.git/info/exclude"
+      RELATIVE_CRED_PATH="${CRED_FILE_ABS#"$REPO_ROOT"/}"
+      PATTERN="/${RELATIVE_CRED_PATH}"
+
+      mkdir -p "${REPO_ROOT}/.git/info"
+      touch "$EXCLUDE_FILE"
+      if ! grep -qxF "$PATTERN" "$EXCLUDE_FILE"; then
+        printf '\n%s\n' "$PATTERN" >> "$EXCLUDE_FILE"
+      fi
     fi
   fi
 fi

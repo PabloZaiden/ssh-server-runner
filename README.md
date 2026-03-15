@@ -26,4 +26,4 @@ If VS Code doesn't automatically expose the port, you can forward it manually
 
 On first run, the script will generate a random password for the `ssh` server and print it to the terminal. You can use this password to connect to the server.
 
-On subsequent runs, the script will reuse the same password, which is stored in `./.sshcred`. If running in a git repository, the file will locally added to the exclude list to avoid committing it by accident.
+On subsequent runs, the script will reuse the same password, which is stored in `./.sshcred`. If that file lives inside a git repository, its repo-relative path is added to the local exclude list to avoid committing it by accident, even when you start the script from a subdirectory.
