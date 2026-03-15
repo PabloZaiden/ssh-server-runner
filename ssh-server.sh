@@ -68,9 +68,22 @@ CURRENT_USER="${SUDO_USER:-$(id -un)}"
 as_root_bash '
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
-apt-get update
-apt-get install -y --no-install-recommends openssh-server uuid-runtime dtach
-rm -rf /var/lib/apt/lists/*
+
+missing_packages=()
+for package in openssh-server uuid-runtime dtach; do
+  if ! dpkg-query -W -f="\${db:Status-Status}" "$package" 2>/dev/null | grep -qx installed; then
+    missing_packages+=("$package")
+  fi
+done
+
+if [[ ${#missing_packages[@]} -gt 0 ]]; then
+  apt-get update
+  apt-get install -y --no-install-recommends "${missing_packages[@]}"
+  rm -rf /var/lib/apt/lists/*
+else
+  echo "All apt packages already installed; skipping apt-get install."
+fi
+
 mkdir -p /var/run/sshd
 mkdir -p /etc/ssh/sshd_config.d
 '
