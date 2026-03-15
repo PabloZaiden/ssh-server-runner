@@ -91,6 +91,31 @@ mkdir -p /etc/ssh/sshd_config.d
 # install fresh editor
 curl https://raw.githubusercontent.com/sinelaw/fresh/refs/heads/master/scripts/install.sh | sh
 
+# install GitHub CLI if missing
+if command -v gh >/dev/null 2>&1; then
+  echo "GitHub CLI already installed; skipping."
+else
+  as_root_bash '
+set -euo pipefail
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get update
+if ! apt-get install -y --no-install-recommends gh; then
+  echo "Default apt sources do not provide gh; configuring the official GitHub CLI repository."
+  apt-get install -y --no-install-recommends ca-certificates curl gnupg
+  install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+    | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
+  chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+    > /etc/apt/sources.list.d/github-cli.list
+  apt-get update
+  apt-get install -y --no-install-recommends gh
+fi
+rm -rf /var/lib/apt/lists/*
+'
+fi
+
 # install GitHub Copilot CLI
 curl -fsSL https://gh.io/copilot-install | bash
 
