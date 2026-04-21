@@ -9,7 +9,7 @@ A script that starts an SSH server inside a devcontainer (or any Debian/Ubuntu e
 - [Configuration](#configuration)
 - [Connecting to the server](#connecting-to-the-server)
 - [Stopping the server](#stopping-the-server)
-- [Persistent terminal sessions with dtach](#persistent-terminal-sessions-with-dtach)
+- [Persistent terminal sessions with dtach and tmux](#persistent-terminal-sessions-with-dtach-and-tmux)
 - [What the script installs and configures](#what-the-script-installs-and-configures)
 - [Troubleshooting](#troubleshooting)
 
@@ -117,9 +117,11 @@ If you need to restart it, simply re-run the original `curl | bash` one-liner. T
 
 ---
 
-## Persistent terminal sessions with dtach
+## Persistent terminal sessions with dtach and tmux
 
-`dtach` is installed by the script so you can keep terminal sessions alive across SSH disconnects — similar to `tmux` or `screen`, but intentionally minimal.
+Both `dtach` and `tmux` are installed by the script so you can keep terminal sessions alive across SSH disconnects.
+
+If you want the lightest possible detached session tool, use `dtach`:
 
 Start a detached session:
 
@@ -137,6 +139,14 @@ dtach -a /tmp/mysession
 
 This is especially useful inside SSH sessions where network interruptions would otherwise terminate any running processes.
 
+If you prefer a full terminal multiplexer, start `tmux` instead:
+
+```bash
+tmux
+```
+
+`tmux` gives you windows, panes, session management, and more advanced workflows than `dtach`.
+
 ---
 
 ## What the script installs and configures
@@ -149,7 +159,8 @@ The script checks whether these Debian packages are already installed and only i
 
 - `openssh-server` — the SSH daemon.
 - `uuid-runtime` — provides `uuidgen` for generating a random password.
-- `dtach` — lightweight terminal session manager (see [above](#persistent-terminal-sessions-with-dtach)).
+- `dtach` — lightweight terminal session manager (see [above](#persistent-terminal-sessions-with-dtach-and-tmux)).
+- `tmux` — full-featured terminal multiplexer for persistent sessions and pane/window management.
 
 It also creates these runtime/configuration directories if they do not already exist:
 
@@ -270,4 +281,3 @@ curl -fsSL https://raw.githubusercontent.com/PabloZaiden/ssh-server-runner/main/
 - Confirm the port is forwarded and reachable (`ssh -v` is helpful).
 - Check that `sshd` is still running: `pgrep -x sshd`.
 - If you changed `SSH_PORT` between runs, make sure you are connecting to the new port.
-
