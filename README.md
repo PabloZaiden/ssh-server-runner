@@ -1,6 +1,6 @@
 # ssh-server-runner
 
-A script that starts an SSH server inside a devcontainer (or any Debian/Ubuntu environment), installs a small set of developer tools, and wires up SSH agent forwarding from VS Code — so your local SSH keys work transparently inside the container.
+A script that starts an SSH server inside a devcontainer (or any Debian/Ubuntu environment), installs a small set of developer tools including `git`, and wires up SSH agent forwarding from VS Code — so your local SSH keys work transparently inside the container.
 
 ## Table of Contents
 
@@ -161,6 +161,7 @@ The script checks whether these Debian packages are already installed and only i
 - `uuid-runtime` — provides `uuidgen` for generating a random password.
 - `dtach` — lightweight terminal session manager (see [above](#persistent-terminal-sessions-with-dtach-and-tmux)).
 - `tmux` — full-featured terminal multiplexer for persistent sessions and pane/window management.
+- `git` — used for repository-aware credential file ignore rules and available as a standard developer tool after the script completes.
 
 It also creates these runtime/configuration directories if they do not already exist:
 
@@ -183,7 +184,7 @@ On first run the script generates a random password using `uuidgen` and stores i
 
 On later runs it reuses the same credential file. If the file exists but is empty, the script exits with an error.
 
-If the credential file lives inside the current git repository, the script appends its repo-relative path to `.git/info/exclude` so the password file is never accidentally committed — without modifying `.gitignore`.
+If the credential file lives inside the current git repository, the script appends its repo-relative path to `.git/info/exclude` so the password file is never accidentally committed — without modifying `.gitignore`. Because `git` is installed as part of the base dependency set, this repository-aware behavior no longer depends on the environment already providing `git`.
 
 ### SSH daemon configuration
 

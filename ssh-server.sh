@@ -70,7 +70,7 @@ set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
 missing_packages=()
-for package in openssh-server uuid-runtime dtach tmux; do
+for package in openssh-server uuid-runtime dtach tmux git; do
   if ! dpkg-query -W -f="\${db:Status-Status}" "$package" 2>/dev/null | grep -qx installed; then
     missing_packages+=("$package")
   fi
