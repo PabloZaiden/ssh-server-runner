@@ -53,6 +53,41 @@ as_root_bash() {
   exit 1
 }
 
+as_current_user_bash() {
+  local cmd="$1"
+  local quoted_home
+  local quoted_cmd
+
+  printf -v quoted_home "%q" "$CURRENT_USER_HOME"
+  printf -v quoted_cmd "%q" "$cmd"
+
+  if [[ "$(id -un)" == "$CURRENT_USER" ]]; then
+    HOME="$CURRENT_USER_HOME" bash -lc "$cmd"
+    return
+  fi
+
+  if [[ "$(id -u)" -eq 0 ]]; then
+    if command -v runuser >/dev/null 2>&1; then
+      runuser -u "$CURRENT_USER" -- env HOME="$CURRENT_USER_HOME" bash -lc "$cmd"
+      return
+    fi
+
+    if command -v su >/dev/null 2>&1; then
+      su -s /bin/bash "$CURRENT_USER" -c "env HOME=$quoted_home bash -lc $quoted_cmd"
+      return
+    fi
+  fi
+
+  if command -v sudo >/dev/null 2>&1; then
+    sudo -n -u "$CURRENT_USER" HOME="$CURRENT_USER_HOME" bash -lc "$cmd" 2>/dev/null \
+      || sudo -u "$CURRENT_USER" HOME="$CURRENT_USER_HOME" bash -lc "$cmd"
+    return
+  fi
+
+  echo "ERROR: unable to run command as ${CURRENT_USER}" >&2
+  exit 1
+}
+
 resolve_path() {
   local path="$1"
   local dir_path
@@ -63,6 +98,11 @@ resolve_path() {
 
 # Prefer the non-root invoker when using sudo
 CURRENT_USER="${SUDO_USER:-$(id -un)}"
+CURRENT_USER_HOME="$(getent passwd "$CURRENT_USER" | cut -d: -f6)"
+if [[ -z "$CURRENT_USER_HOME" ]]; then
+  echo "ERROR: unable to resolve home directory for ${CURRENT_USER}" >&2
+  exit 1
+fi
 
 # Install deps and prep sshd dirs
 as_root_bash '
@@ -118,6 +158,29 @@ fi
 
 # install GitHub Copilot CLI
 curl -fsSL https://gh.io/copilot-install | bash
+
+# install opencode and ensure it is available on the user PATH
+OPENCODE_INSTALL_DIR="${CURRENT_USER_HOME}/.opencode/bin"
+if as_current_user_bash "command -v opencode >/dev/null 2>&1"; then
+  echo "opencode already installed; skipping."
+else
+  as_current_user_bash "curl -fsSL https://opencode.ai/install | bash"
+fi
+
+if ! as_current_user_bash "command -v opencode >/dev/null 2>&1"; then
+  OPENCODE_BIN="${OPENCODE_INSTALL_DIR}/opencode"
+  if [[ ! -x "$OPENCODE_BIN" ]]; then
+    echo "ERROR: opencode install completed but ${OPENCODE_BIN} is not executable" >&2
+    exit 1
+  fi
+
+  as_root ln -sf "$OPENCODE_BIN" /usr/local/bin/opencode
+fi
+
+if ! as_current_user_bash "command -v opencode >/dev/null 2>&1"; then
+  echo "ERROR: opencode is installed but not available on PATH for ${CURRENT_USER}" >&2
+  exit 1
+fi
 
 # Use existing password if present, otherwise create it once
 if [[ -f "$CRED_FILE" ]]; then

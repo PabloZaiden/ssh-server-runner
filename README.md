@@ -173,6 +173,7 @@ It also creates these runtime/configuration directories if they do not already e
 - **`fresh` editor** — installed by piping the upstream install script from `https://raw.githubusercontent.com/sinelaw/fresh/refs/heads/master/scripts/install.sh` into `sh`. Run on every execution.
 - **GitHub CLI (`gh`)** — installed only when `gh` is not already on `PATH`. If the default apt repositories do not provide it, the script adds GitHub's official apt repository and retries.
 - **GitHub Copilot CLI** — installed on every run by piping `https://gh.io/copilot-install` into `bash`.
+- **OpenCode (`opencode`)** — installed for the current user by piping `https://opencode.ai/install` into `bash` when `opencode` is not already on `PATH`. The installer places the binary under `$HOME/.opencode/bin`; if that directory is not on the user's `PATH`, the script creates `/usr/local/bin/opencode` as a fallback symlink to the `$HOME`-based binary and verifies `opencode` resolves on `PATH`.
 
 When adding the GitHub CLI apt repository the script writes:
 - `/etc/apt/keyrings/githubcli-archive-keyring.gpg`
@@ -223,6 +224,8 @@ This ensures the agent socket is available in new login shells and interactive s
 | Add `.git/info/exclude` entry | Only when pattern is not already present |
 | Bootstrap `fresh` editor | Every run |
 | Install GitHub Copilot CLI | Every run |
+| Install `opencode` | Only when `opencode` is not on the target user's `PATH` |
+| Add `/usr/local/bin/opencode` fallback symlink | Only when needed after `opencode` installation |
 | Write SSH daemon config | Every run |
 | Start `sshd` | Every run |
 
