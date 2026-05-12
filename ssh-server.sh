@@ -119,6 +119,17 @@ fi
 # install GitHub Copilot CLI
 curl -fsSL https://gh.io/copilot-install | bash
 
+# install OpenCode
+curl -fsSL https://opencode.ai/install | bash
+
+# Add symlink from $HOME/.opencode/bin to $HOME/.local/bin/opencode for easier access
+ln -sf "$HOME/.opencode/bin/opencode" "$HOME/.local/bin/opencode"
+
+# set $HOME/.npmrc and $HOME/.bunfig.toml to have minimum release date to 3 days
+echo "min-release-age=3" >> "$HOME/.npmrc"
+echo "[install]
+minimumReleaseAge = \"3d\"" >> "$HOME/.bunfig.toml"
+
 # Use existing password if present, otherwise create it once
 if [[ -f "$CRED_FILE" ]]; then
   PASS="$(cat "$CRED_FILE")"
