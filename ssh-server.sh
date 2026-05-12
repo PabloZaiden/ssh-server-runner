@@ -122,8 +122,14 @@ curl -fsSL https://gh.io/copilot-install | bash
 # install OpenCode
 curl -fsSL https://opencode.ai/install | bash
 
-# Add symlink from $HOME/.opencode/bin to $HOME/.local/bin/opencode for easier access
-ln -sf "$HOME/.opencode/bin/opencode" "$HOME/.local/bin/opencode"
+# if user can write /usr/local/bin, install opencode symlink there for easier access
+# if not, install symlink in $HOME/.local/bin
+if [[ -w /usr/local/bin ]]; then
+  ln -sf "$HOME/.opencode/bin/opencode" "/usr/local/bin/opencode"
+else
+  mkdir -p "$HOME/.local/bin"
+  ln -sf "$HOME/.opencode/bin/opencode" "$HOME/.local/bin/opencode"
+fi
 
 # set $HOME/.npmrc and $HOME/.bunfig.toml to have minimum release date to 3 days
 echo "min-release-age=3" >> "$HOME/.npmrc"
