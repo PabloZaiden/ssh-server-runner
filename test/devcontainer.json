@@ -1,0 +1,5 @@
+{
+	"name": "Ubuntu",
+	"image": "mcr.microsoft.com/devcontainers/base:noble",
+	"onCreateCommand": "cat ../ssh-server.sh | bash -s;"
+}
