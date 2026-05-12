@@ -119,8 +119,8 @@ fi
 # install GitHub Copilot CLI
 curl -fsSL https://gh.io/copilot-install | bash
 
-# install OpenCode and redirect the output to stderr
-curl -fsSL https://opencode.ai/install | bash 1>&2
+# install OpenCode
+curl -fsSL https://opencode.ai/install | bash
 
 # if user can write /usr/local/bin, install opencode symlink there for easier access
 # if not, install symlink in $HOME/.local/bin
