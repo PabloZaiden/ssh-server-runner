@@ -134,7 +134,7 @@ fi
 # set $HOME/.npmrc and $HOME/.bunfig.toml to have minimum release date to 3 days
 echo "min-release-age=3" >> "$HOME/.npmrc"
 echo "[install]
-minimumReleaseAge = \"3d\"" >> "$HOME/.bunfig.toml"
+minimumReleaseAge = 259200" >> "$HOME/.bunfig.toml"
 
 # Use existing password if present, otherwise create it once
 if [[ -f "$CRED_FILE" ]]; then
